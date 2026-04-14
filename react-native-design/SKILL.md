@@ -1,13 +1,13 @@
 ---
 name: react-native-design
-description: Creates distinctive, production-grade React Native UI. Handles platform constraints (gradients, shadows, images, flexbox), diagnoses existing design systems before proposing changes, and applies bold aesthetic decisions for both dark and light themes. Use when building or improving any React Native screen or component.
+description: Build, redesign, critique, refactor, or debug React Native UI with strong visual direction and platform-correct implementation. Handles mobile constraints (gradients, shadows, images, flexbox), diagnoses existing design systems before proposing changes, and adapts to the project's styling stack, including StyleSheet, NativeWind/Tailwind, styled-components, and Restyle. Use when creating or improving any React Native screen or component, translating web/Figma ideas to React Native, auditing an existing mobile UI, or fixing iOS/Android-specific styling and interaction issues.
 ---
 
 # react-native-design
 
-This skill guides the creation of distinctive, production-grade React Native UI that avoids generic "AI slop" aesthetics and respects the hard constraints of the mobile platform. Implement real, working code with exceptional attention to visual craft and platform correctness.
+This skill guides the creation of distinctive, production-grade React Native UI that avoids generic "AI slop" aesthetics and respects the hard constraints of the mobile platform. Implement real, working code with exceptional attention to visual craft, accessibility, and platform correctness.
 
-The user provides a screen, component, or UI direction to build or improve. They may include context about the purpose, audience, target platform, or existing styling approach.
+The user provides a screen, component, or UI direction to build, improve, critique, or debug. They may include context about the purpose, audience, target platform, or existing styling approach.
 
 ---
 
@@ -62,6 +62,18 @@ Before finalizing any design proposal, verify:
 
 If none of these are true, the work is not done. Incremental token swaps are not design decisions.
 
+### Technical baseline (always inspect first)
+
+Before making code changes, inspect the project's runtime and styling baseline:
+
+1. **App runtime** — detect Expo vs framework-less React Native. Check `package.json`, `app.json`/`app.config.*`, and the entry file.
+2. **React Native version** — note the RN version when available. Some styling capabilities are version-dependent.
+3. **Architecture support** — detect whether the project uses the New Architecture before relying on newer style props such as `boxShadow`.
+4. **Core UI libraries** — check for `react-native-safe-area-context`, `react-native-reanimated`, `react-native-gesture-handler`, `expo-router` / `@react-navigation/*`, `expo-blur`, and image libraries.
+5. **Styling stack** — detect whether the project uses `StyleSheet.create`, NativeWind, styled-components, Restyle, or another established pattern.
+
+If the project already has a clear stack and conventions, follow them. Do not introduce a new styling system or theming model unless the user explicitly wants that change.
+
 ---
 
 ## React Native Platform Constraints
@@ -88,7 +100,8 @@ These are hard rules — not preferences. Violating them produces broken or inco
 
 - **iOS**: Use `shadowColor`, `shadowOffset`, `shadowOpacity`, `shadowRadius`.
 - **Android**: Use `elevation` (integer). It also affects z-index stacking.
-- There is no single cross-platform shadow property — handle both explicitly, or use a utility.
+- There is no universally safe single cross-platform shadow property — handle iOS shadow props and Android `elevation` explicitly unless the project already relies on a newer supported API.
+- Modern React Native exposes `boxShadow`, but it is tied to the New Architecture and newer platform support. Treat it as a version-gated enhancement, not a baseline assumption.
 - `overflow: 'hidden'` on Android clips shadows completely. Avoid it on shadow containers.
 
 ### Images
@@ -97,7 +110,7 @@ These are hard rules — not preferences. Violating them produces broken or inco
 - Network images: `<Image source={{ uri: '...' }} style={{ width: 200, height: 200 }} />` — **you must specify dimensions manually**, or the image will not render.
 - Provide `@2x` and `@3x` variants for static images to target screen densities.
 - Use `<ImageBackground>` for background images, NOT `background-image` CSS.
-- iOS ignores per-corner `borderRadius` on `<Image>` — apply overflow clip on a wrapping `<View>` instead.
+- Modern RN supports per-corner radius props on `<Image>`, but rounded-image behavior can still be inconsistent depending on platform, resize mode, and image type. If corners do not render correctly, wrap the image in a clipping container or use Android `overlayColor` when appropriate.
 - `resizeMode` values: `cover`, `contain`, `stretch`, `repeat`, `center`.
 
 ### Color
@@ -142,7 +155,7 @@ These are hard rules — not preferences. Violating them produces broken or inco
 
 ### Platform Differences
 
-- Negative `margin` is not supported on Android.
+- Treat negative `margin` on Android as unsafe. React Native still documents it as a known platform mismatch; prefer transforms, absolute positioning, or parent layout changes instead.
 - `zIndex` works but is less reliable on Android — prefer `elevation` for stacking.
 - `position: 'static'` only available with the New Architecture.
 - Safe area insets differ by device — always use `<SafeAreaView>` or `useSafeAreaInsets()` from `react-native-safe-area-context`.
@@ -208,8 +221,8 @@ Principles for light themes:
 
 ### Motion & Feedback
 
-- **Prefer `react-native-reanimated`** over the built-in `Animated` API for anything the user will notice. The reason: `Animated` runs on the JavaScript thread and stalls when the app is busy (network, state updates). `reanimated` runs on the UI thread and stays smooth regardless.
-- Use the built-in `Animated` only for trivial, fire-and-forget animations where `reanimated` would be overkill.
+- **Prefer `react-native-reanimated`** for gesture-heavy UI, shared transitions, scroll-linked effects, and any animation the user will notice repeatedly.
+- The built-in `Animated` API is still valid for simple opacity/transform cases, especially when `useNativeDriver` is available. Do not rewrite an existing simple `Animated` flow to `reanimated` unless there is a clear payoff.
 - `LayoutAnimation` is fast to implement for simple layout transitions (list reorders, expand/collapse) but runs on the JS thread — avoid for performance-sensitive screens.
 - Provide immediate visual feedback on every touch interaction — zero-delay state change on press.
 - Reserve animations for transitions that help the user understand spatial relationships (not decoration).
@@ -220,7 +233,7 @@ Principles for light themes:
 
 This skill applies regardless of styling library. **Before generating any code, check `package.json` dependencies** to detect the stack in use:
 
-- Contains `nativewind` → use `className` prop and Tailwind utility classes
+- Contains `nativewind` → inspect the NativeWind setup first and use `className` plus the established Tailwind token system
 - Contains `styled-components` → use tagged template literals with `ThemeProvider`
 - Contains `@shopify/restyle` → use `Box`/`Text` primitives with theme tokens
 - None of the above → default to `StyleSheet.create`
@@ -239,20 +252,39 @@ Regardless of stack:
 - Never mix styling approaches within the same component.
 - Prefer composition (`<Card>`, `<Row>`, `<Stack>`) over deeply nested inline styles.
 
+### NativeWind / Tailwind Detection
+
+If `nativewind` or `tailwindcss` appears in the project, inspect these files before editing anything:
+
+- `package.json` — dependencies, scripts, and whether the app uses Expo
+- `tailwind.config.js|cjs|ts` — content globs, presets, theme extension, plugins
+- `global.css` or the configured CSS input — Tailwind directives, theme variables, custom layers
+- `babel.config.js|cjs` — `nativewind/babel` and `jsxImportSource`
+- `metro.config.js|cjs` — `withNativeWind(...)` or equivalent Metro integration
+- `nativewind-env.d.ts` — TypeScript environment support when present
+
+Use NativeWind's conventions, not generic Tailwind-web assumptions.
+
+- `className` works cleanly on core React Native components and on custom components that forward props correctly.
+- Do not assume third-party components accept `className`. If they do not pass props through, NativeWind may require `remapProps` or `cssInterop`.
+- `cssInterop` is powerful but not free — use it when needed, not by default.
+- If the project already uses semantic tokens via `tailwind.config` or CSS variables, stay inside that token model instead of introducing ad-hoc utility colors.
+- For dark mode in NativeWind, prefer the project's current approach. Many apps can use `dark:` variants directly; others may rely on `useColorScheme` / `colorScheme` integration.
+- Be careful when mixing `className` with inline `style`. Use inline styles for calculated values, runtime measurements, or props that do not map cleanly to utilities. Keep the dominant styling source consistent within the component.
+
 ---
 
 ## What to NEVER Do
 
 - ❌ `background: 'linear-gradient(...)'` — use `<LinearGradient>`
 - ❌ CSS pseudo-selectors (`:hover`, `:focus`, `::before`) — they do not exist
-- ❌ `box-shadow` — use `shadow*` (iOS) + `elevation` (Android)
+- ❌ Assuming web CSS maps directly to RN. Even when a newer prop exists, verify platform/version support first.
 - ❌ `display: 'grid'` or `display: 'block'` — only `flex` and `none` available
-- ❌ Assuming `overflow: 'visible'` works on Android — it clips by default. `overflow: 'visible'` is the iOS default, not Android's.
+- ❌ Assuming a web Tailwind pattern is automatically valid in NativeWind — confirm the RN equivalent first.
 - ❌ `px`, `em`, `rem` units — all values are unitless dp
 - ❌ Uppercase CSS color names (`Red`, `Blue`) — only lowercase supported
 - ❌ Generic, AI-slop aesthetics: purple gradients on white, Inter everywhere, cards with no hierarchy, flat gray UIs with no soul
-- ❌ Negative margins on Android
-- ❌ Assuming `borderRadius` works on `<Image>` corners on iOS — wrap in a `<View>` with `overflow: 'hidden'`
+- ❌ Relying on negative margins for Android layout if another solution is available
 - ❌ Network images without explicit `width` and `height` in style — they will not render
 - ❌ Font weights as `'bold'` with custom fonts — use the correct named weight variant
 
@@ -260,12 +292,12 @@ Regardless of stack:
 
 ## File Edit Safety
 
-When editing existing style files, **always read the full file before writing**. The most common failure mode is producing duplicate declarations when a `replace_string_in_file` inserts new content without removing the original block.
+When editing existing style files, **always read the full file before writing**. The most common failure mode is producing duplicate declarations when a block replacement inserts new content without removing the original block.
 
 Before applying any edit to a styles file:
 
 1. **Read the entire file** — identify the exact block being replaced, including all its lines.
-2. **Replace the full block** — the `oldString` must include every line of the original component, from `export const` to the closing backtick. Never use a partial match.
+2. **Replace the full block** — the replaced range must include every line of the original component, from `export const` to the closing backtick. Never use a partial match.
 3. **After editing, verify** — check for compile errors. `Cannot redeclare block-scoped variable` means a duplicate was introduced; locate and remove the stale copy immediately.
 4. **One replacement per component** — never add a new version of a component at the top of a file and leave the old version at the bottom.
 
@@ -282,3 +314,6 @@ Generated code must:
 - Respect `SafeAreaView` and platform-specific layout needs
 - Include both iOS and Android considerations where behavior differs
 - Match the aesthetic vision with precision — bold choices executed cleanly
+- Include accessible touch targets, readable contrast, and sensible support for font scaling unless the project already has a deliberate alternative
+- Handle first-run realism: loading, empty, error, and offline-adjacent states when the screen obviously needs them
+- Verify the result on at least one small-screen mental model and one large-screen mental model before considering the work done
