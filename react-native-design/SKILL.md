@@ -1,3 +1,8 @@
+---
+name: react-native-design
+description: Creates distinctive, production-grade React Native UI. Handles platform constraints (gradients, shadows, images, flexbox), diagnoses existing design systems before proposing changes, and applies bold aesthetic decisions for both dark and light themes. Use when building or improving any React Native screen or component.
+---
+
 # react-native-design
 
 This skill guides the creation of distinctive, production-grade React Native UI that avoids generic "AI slop" aesthetics and respects the hard constraints of the mobile platform. Implement real, working code with exceptional attention to visual craft and platform correctness.
