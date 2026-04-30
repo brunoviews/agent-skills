@@ -1,187 +1,165 @@
-# React Native Design Skill
+# react-native-design
 
-Build, redesign, critique, refactor, or debug React Native UI with stronger visual direction and better platform correctness.
+> A comprehensive VS Code / GitHub Copilot skill that replaces the need for a UX/UI designer when building React Native apps. From color palette generation to screen architecture, this skill handles every design decision with professional-grade output.
 
-This skill is designed for AI coding agents working on mobile interfaces. It helps them produce React Native screens and components that feel intentional, polished, and native to the platform instead of looking like generic web layouts copied into mobile code.
+## What is this?
 
-## What This Skill Does
+A skill file for GitHub Copilot (VS Code agent mode) that provides deep expertise in React Native UI design. Instead of getting generic, bland AI-generated designs, this skill enforces intentional, platform-correct, production-ready UI with strong visual direction.
 
-The `react-native-design` skill teaches an agent how to approach React Native UI work with both design judgment and technical accuracy.
+**It acts as a complete UX/UI replacement** — capable of generating color systems from scratch, designing screens, critiquing and improving existing UI, and making every design decision a professional designer would make.
 
-It helps the agent:
+## Key Capabilities
 
-- Create new mobile screens from scratch
-- Redesign existing screens with a clearer visual identity
-- Critique weak UI and explain what is not working
-- Refactor messy or inconsistent screen implementations
-- Debug platform-specific visual issues on iOS and Android
-- Translate design ideas or Figma-like direction into working React Native code
-- Adapt its output to the styling stack already used by the project
+### 🎨 Theme & Color System
 
-In short: it pushes the agent to make better design decisions and safer React Native implementation decisions at the same time.
+- **Create themes from scratch** — give it an app concept, get a complete token system
+- **Generate palettes from user colors** — provide 1-3 colors, get a full professional palette
+- **Improve existing palettes** — audits contrast, semantic separation, and surface depth
+- **Dual theme support** — dark + light with shared token architecture
+- **Color theory built-in** — monochromatic, analogous, complementary, split-complementary, triadic schemes
+- **WCAG accessibility** — enforces minimum contrast ratios (4.5:1 body, 3:1 large text)
 
-## Why This Skill Exists
+### 📐 Screen Design & Layout
 
-General-purpose coding agents can usually write React Native code that compiles, but they often miss the details that make mobile UI feel good.
+- **Complete screen pattern catalog** — Auth, Home, Detail, List, Profile, Search, Onboarding, Modals
+- **Layout decision framework** — decision tree for choosing structure based on content type
+- **Component sizing reference** — minimum heights, recommended dimensions, touch targets
+- **Navigation architecture** — when to use tabs, drawers, stacks, or combinations
 
-Without guidance, agents tend to:
+### 🛠 Stack Agnostic
 
-- Produce generic, forgettable layouts
-- Reuse common AI-generated patterns with little personality
-- Apply web assumptions that do not map cleanly to React Native
-- Ignore platform differences such as shadows, safe areas, or image sizing
-- Make small cosmetic tweaks instead of meaningful design improvements
-- Introduce a new styling pattern instead of following the project's existing one
+Works with whatever styling approach your project uses:
 
-This skill exists to prevent that.
+- `StyleSheet.create` (vanilla RN)
+- **NativeWind / Tailwind** (full config generation included)
+- **styled-components/native** (ThemeProvider patterns)
+- **@shopify/restyle** (type-safe tokens)
 
-It gives the agent a mobile-first design process, a React Native-specific implementation baseline, and a stronger quality bar for visual work.
+Detects your stack automatically and generates code that matches your conventions.
 
-## With This Skill vs Without It
+### 📱 Platform Correctness
 
-| Without the skill | With the skill |
-| --- | --- |
-| The agent may make the UI "clean" but generic | The agent commits to a clear visual direction |
-| Web habits may leak into React Native decisions | React Native constraints are treated as first-class rules |
-| Design changes may be shallow or token-only | Layout, typography, hierarchy, and interaction are improved intentionally |
-| Existing design systems may be ignored or stretched carelessly | The agent inspects the current system first and works within it unless change is justified |
-| Styling choices may be inconsistent across files | The agent follows the project's established styling stack |
-| UI may technically work but still feel flat | UI is expected to feel more polished, more native, and more memorable |
+Hard rules for React Native constraints:
 
-## Why You Should Use It
+- Flexbox-only layout (no CSS Grid, no `display: block`)
+- Gradient handling via `<LinearGradient>` (not CSS)
+- Cross-platform shadows (iOS `shadow*` + Android `elevation`)
+- Network images require explicit dimensions
+- Safe areas, keyboard avoidance, touch targets
 
-Use this skill if you want your AI agent to behave more like a thoughtful mobile product designer and a senior React Native engineer at the same time.
+### 🏭 Industry-Specific Guidance
 
-It is especially useful when:
+Tailored design patterns for:
 
-- Visual quality matters, not just functional correctness
-- You want stronger screens, not just prettier padding values
-- You need the agent to respect mobile platform constraints
-- You want design decisions that feel deliberate, not random
-- You are working in an existing codebase and want the agent to follow the current stack
-- You want fewer "looks fine in code, feels wrong on device" outcomes
+- Streaming / Media trackers
+- Fitness / Health
+- Finance / Banking
+- Social / Community
+- E-commerce / Marketplace
+- Education / Learning
 
-## Best Use Cases
+### 🔄 State-First Design
 
-This skill is a strong fit for:
+Every screen must handle ALL states — not just the happy path:
 
-- Building a new screen from a product idea
-- Improving an existing screen that feels bland or inconsistent
-- Auditing a React Native UI and identifying weaknesses
-- Fixing styling bugs that appear only on mobile platforms
-- Porting a web concept into a proper mobile layout
-- Translating a mockup into production-ready React Native code
-- Improving empty, loading, or error states
-- Working on dark mode, visual hierarchy, spacing systems, or card surfaces
+- Loading (skeleton shimmer, not spinners)
+- Empty (illustration + CTA, not "No items")
+- Error (friendly + retry, not stack traces)
+- Offline (banner + cached content)
+- Success (transient feedback)
 
-## When Not to Use It
+## Example Prompts
 
-This skill is not meant for every task in a React Native project.
+```
+"I'm building a fitness tracking app. Create a dark theme using teal as the accent color with Tailwind/NativeWind."
 
-You probably do not need it when the task is mainly about:
+"Improve my current color palette — the surfaces feel flat and the accent doesn't pop enough."
 
-- API integration
-- State management
-- Database work
-- Business logic
-- Navigation wiring with no UI change
-- Simple text or copy edits
-- Small fixes that do not involve design, layout, or interaction quality
+"Design a detail view for a movie tracker app that shows poster, rating, and episode progress."
 
-If the task is mostly backend or app logic, a general coding workflow is usually enough.
+"Create a complete theme from these brand colors: #2DD4BF and #0C1219"
 
-## What Makes This Skill Different
+"I need a login screen that feels premium and cinematic. Dark theme, styled-components."
 
-This skill does more than list React Native styling tips. It gives the agent a working decision framework.
+"Audit my current UI and tell me what's wrong with the color contrast and hierarchy."
 
-It teaches the agent to:
-
-- Define a clear design direction before changing code
-- Inspect the existing theme, tokens, and layout patterns first
-- Decide whether the current design system is enough for meaningful improvement
-- Ask before silently extending the design system
-- Respect hard React Native platform constraints
-- Follow the existing styling stack instead of introducing a new one
-- Design for real app states, not just the ideal loaded state
-- Avoid "AI slop" aesthetics and default-looking mobile UI
-
-That combination is what makes it practical.
-
-## React Native Areas It Covers
-
-The skill includes guidance for:
-
-- Flexbox and mobile layout behavior
-- Safe areas and screen structure
-- Gradients in React Native
-- Cross-platform shadows
-- Image rendering rules
-- Typography and font usage
-- Dark and light theme design
-- Touch targets and interaction feedback
-- Blur and visual depth
-- Scroll and list patterns
-- Platform differences between iOS and Android
-- Styling approaches such as `StyleSheet`, NativeWind, styled-components, and Restyle
-
-## How to Use It
-
-Use this skill when asking an AI agent to work on mobile UI.
-
-The most effective requests usually include:
-
-- The screen or component you want to change
-- The purpose of that screen
-- Whether you want a safe improvement or a bolder redesign
-- Your styling stack, if it is not obvious from the repo
-- Any platform concerns such as iOS-only or Android-specific issues
-- Screenshots, mockups, or references if you have them
-
-### Good Prompt Examples
-
-```txt
-Use react-native-design to redesign this home screen using the existing styled-components theme. I want it to feel more premium, but do not introduce a new design system.
+"Design the home screen for a recipe app — light theme, playful aesthetic, lots of food imagery."
 ```
 
-```txt
-Use react-native-design to audit this screen and tell me what is visually weak, what is technically risky in React Native, and then fix it.
+## What's Included
+
+| Section                   | Description                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------- |
+| Core Philosophy           | 5 principles that guide every decision                                                  |
+| Design Thinking Framework | Purpose, audience, aesthetic direction, differentiation                                 |
+| Color System (Complete)   | Theory, generation process, token architecture, dark/light rules                        |
+| Theme Creation Workflows  | 4 step-by-step workflows (scratch, improve, from colors, specific view)                 |
+| Screen Pattern Catalog    | 8+ screen types with structure, decisions, and quality marks                            |
+| Layout Decision Framework | Content → layout decision tree, spacing rules, component sizes                          |
+| Platform Constraints      | All RN hard rules (flexbox, gradients, shadows, images, touch, blur, lists, typography) |
+| Visual Aesthetics         | Reference apps by category, dark/light principles, typography, spacing, motion          |
+| State Design              | Required states, skeleton rules, empty state patterns                                   |
+| Styling (Stack Agnostic)  | Detection + patterns for StyleSheet, NativeWind, styled-components, Restyle             |
+| Industry Guidance         | Domain-specific design patterns for 6 industries                                        |
+| Iconography               | Icon guidelines, library recommendations, sizing rules                                  |
+| Quality Checklist         | 10-point verification before delivering any design                                      |
+
+## Installation
+
+### Option A: Copy into your project
+
+Place the `SKILL.md` file in your project:
+
+```
+your-project/
+└── .agents/
+    └── skills/
+        └── react-native-design/
+            └── SKILL.md
 ```
 
-```txt
-Use react-native-design to build a watchlist screen for Expo + React Native. Keep it dark, cinematic, and platform-correct on both iOS and Android.
-```
+### Option B: Reference from VS Code settings
 
-```txt
-Use react-native-design to translate this Figma-inspired card layout into React Native using the project's current styling approach.
-```
+Add the skill path to your Copilot agent configuration so it's available across projects.
 
-## What You Can Expect From the Output
+## Requirements
 
-When used well, this skill should push the agent toward output that is:
+- VS Code with GitHub Copilot (agent mode / chat)
+- A React Native project (Expo or bare)
+- Any styling stack (the skill adapts automatically)
 
-- More visually intentional
-- More mobile-native
-- More faithful to the current codebase
-- More careful about iOS and Android behavior
-- More complete in handling empty, loading, and edge states
-- More accessible in touch targets and readability
-- More production-ready and less placeholder-heavy
+## Anti-Patterns This Skill Prevents
 
-## Core Principles Behind the Skill
+- ❌ Generic purple-gradient-on-white "AI slop" aesthetics
+- ❌ Flat color systems with no surface depth
+- ❌ Web CSS assumptions that break on mobile (`linear-gradient`, `display: grid`, `px` units)
+- ❌ Designing only the happy path (no loading/empty/error states)
+- ❌ Using Inter/Roboto as brand fonts (acceptable for body, not for identity)
+- ❌ Hardcoded colors instead of token references
+- ❌ Ignoring contrast ratios and accessibility
+- ❌ Touch targets smaller than 44pt
+- ❌ Network images without explicit dimensions
+- ❌ Mixing styling approaches within the same component
 
-The skill is built around a few clear ideas:
+## Quality Standards
 
-1. Design should be intentional.
-2. Mobile UI should respect platform constraints.
-3. Existing project conventions matter.
-4. Visual change should be noticeable, not cosmetic noise.
-5. Strong implementation matters as much as strong aesthetics.
+Every output from this skill is verified against:
 
-## If You Only Remember One Thing
+- [ ] All colors reference tokens (no hardcoded hex in components)
+- [ ] Text contrast meets WCAG AA (4.5:1 body, 3:1 large)
+- [ ] Touch targets ≥ 44pt
+- [ ] Consistent spacing grid (multiples of base unit)
+- [ ] All states designed (loading, empty, error)
+- [ ] Platform-specific code where iOS/Android differ
+- [ ] No web-only CSS properties
+- [ ] Safe areas respected
+- [ ] Typography hierarchy visible (≥3 distinct levels)
+- [ ] One memorable design decision per screen
 
-This skill helps an AI agent stop treating React Native UI like generic frontend work.
+## License
 
-It makes the agent think in terms of mobile design, platform reality, and production-quality implementation before it writes code.
+MIT
+
 
 ## Repository Note
 
