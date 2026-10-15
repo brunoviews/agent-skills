@@ -1,77 +1,73 @@
 # react-native-design
 
-> A comprehensive VS Code / GitHub Copilot skill that replaces the need for a UX/UI designer when building React Native apps. From color palette generation to screen architecture, this skill handles every design decision with professional-grade output.
+An agent skill for designing React Native and Expo UI. It makes your coding agent read the project before designing, commit to a visual direction that fits this particular app, build it on design tokens, measure contrast instead of guessing it, and follow the platform rules that web habits get wrong.
 
-## What is this?
+It works with any agent that reads `SKILL.md` folders (Claude Code, Cursor, Codex, GitHub Copilot in VS Code and others) and with any styling stack: `StyleSheet`, NativeWind, styled-components or Restyle.
 
-A skill file for GitHub Copilot (VS Code agent mode) that provides deep expertise in React Native UI design. Instead of getting generic, bland AI-generated designs, this skill enforces intentional, platform-correct, production-ready UI with strong visual direction.
+## What it does
 
-**It acts as a complete UX/UI replacement** — capable of generating color systems from scratch, designing screens, critiquing and improving existing UI, and making every design decision a professional designer would make.
+- **Themes from scratch.** From an app idea to a complete token system: surfaces, accent, text, borders, semantic colors, type scale, spacing and fonts, with the font loading code.
+- **Palettes from your colors.** Give it one to three brand colors and it derives every missing role, for dark, light or both.
+- **Audits.** It reads your existing theme and screens, picks the three issues with the most visual impact, and proposes before → after values with their measured contrast.
+- **Screens.** It designs a specific view with your existing tokens and components, including the loading, empty, error and offline states.
+- **Platform rules.** Checked against React Native 0.82+ and Expo SDK 54+: `boxShadow`, edge-to-edge on Android 16, safe areas, blur on Android, Liquid Glass on iOS 26, keyboard handling, lists and custom fonts.
 
-## Key Capabilities
+It respects what's already there: it detects your stack and conventions, and asks before extending your design system.
 
-### 🎨 Theme & Color System
+## Contrast is measured, not guessed
 
-- **Create themes from scratch** — give it an app concept, get a complete token system
-- **Generate palettes from user colors** — provide 1-3 colors, get a full professional palette
-- **Improve existing palettes** — audits contrast, semantic separation, and surface depth
-- **Dual theme support** — dark + light with shared token architecture
-- **Color theory built-in** — monochromatic, analogous, complementary, split-complementary, triadic schemes
-- **WCAG accessibility** — enforces minimum contrast ratios (4.5:1 body, 3:1 large text)
-
-### 📐 Screen Design & Layout
-
-- **Complete screen pattern catalog** — Auth, Home, Detail, List, Profile, Search, Onboarding, Modals
-- **Layout decision framework** — decision tree for choosing structure based on content type
-- **Component sizing reference** — minimum heights, recommended dimensions, touch targets
-- **Navigation architecture** — when to use tabs, drawers, stacks, or combinations
-
-### 🛠 Stack Agnostic
-
-Works with whatever styling approach your project uses:
-
-- `StyleSheet.create` (vanilla RN)
-- **NativeWind / Tailwind** (full config generation included)
-- **styled-components/native** (ThemeProvider patterns)
-- **@shopify/restyle** (type-safe tokens)
-
-Detects your stack automatically and generates code that matches your conventions.
-
-### 📱 Platform Correctness
-
-Hard rules for React Native constraints:
-
-- Flexbox-only layout (no CSS Grid, no `display: block`)
-- Gradient handling via `<LinearGradient>` (not CSS)
-- Cross-platform shadows (iOS `shadow*` + Android `elevation`)
-- Network images require explicit dimensions
-- Safe areas, keyboard avoidance, touch targets
-
-### 🏭 Industry-Specific Guidance
-
-Tailored design patterns for:
-
-- Streaming / Media trackers
-- Fitness / Health
-- Finance / Banking
-- Social / Community
-- E-commerce / Marketplace
-- Education / Learning
-
-### 🔄 State-First Design
-
-Every screen must handle ALL states — not just the happy path:
-
-- Loading (skeleton shimmer, not spinners)
-- Empty (illustration + CTA, not "No items")
-- Error (friendly + retry, not stack traces)
-- Offline (banner + cached content)
-- Success (transient feedback)
-
-## Example Prompts
+A contrast ratio can't be judged by eye, and a model's estimate is often off. The skill ships a small script that the agent runs on every text/surface pair it adds or changes:
 
 ```
-"I'm building a fitness tracking app. Create a dark theme using teal as the accent color with Tailwind/NativeWind."
+$ node scripts/contrast.mjs "rgba(255,255,255,0.38)" "#1C1C1E"
+rgba(255,255,255,0.38) on #1C1C1E  (seen as #727274)
+3.54:1
+  body text   FAIL (needs 4.5:1)
+  large text  PASS (needs 3:1)
+  UI / icons  PASS (needs 3:1)
+```
+
+Semi-transparent colors are blended over their background first, so the ratio is the one users actually see. It accepts hex, `rgb()`, `rgba()`, `hsl()` and `hsla()`, and needs nothing but Node.
+
+## How it's built
+
+`SKILL.md` is the procedure the agent follows: read the project, pick a direction, run the matching workflow, check the result. The detail lives in reference files that the agent loads only when the task needs them, so a small UI fix doesn't pull every guideline into the context.
+
+```
+react-native-design/
+├── SKILL.md                      the procedure, hard rules and final checklist
+├── references/
+│   ├── color-system.md           contrast rules, palette generation, token roles, dark and light rules
+│   ├── platform-constraints.md   React Native rules that break rendering, with their fixes
+│   ├── styling-stacks.md         StyleSheet, NativeWind, styled-components and Restyle patterns
+│   ├── screen-patterns.md        auth, home, detail, list, profile, search, onboarding, sheets
+│   └── aesthetics.md             aesthetic directions, fonts, motion, icons, domain patterns
+└── scripts/
+    ├── contrast.mjs              WCAG contrast checker
+    └── contrast.test.mjs         its tests: node --test scripts/contrast.test.mjs
+```
+
+## Installation
+
+With the [skills CLI](https://github.com/vercel-labs/skills), which detects your agents and installs into the right folder:
+
+```bash
+npx skills add brunoviews/agent-skills --skill react-native-design
+```
+
+Or copy the whole `react-native-design/` folder by hand. Copy the folder, not only `SKILL.md`: the skill uses `references/` and `scripts/`.
+
+| Agent                    | In the project                          | For all your projects |
+| ------------------------ | --------------------------------------- | --------------------- |
+| Claude Code              | `.claude/skills/`                       | `~/.claude/skills/`   |
+| Cursor                   | `.agents/skills/` or `.cursor/skills/`  | `~/.cursor/skills/`   |
+| Codex                    | `.agents/skills/`                       | `~/.agents/skills/`   |
+| GitHub Copilot (VS Code) | `.github/skills/` or `.agents/skills/`  | `~/.copilot/skills/`  |
+
+## Example prompts
+
+```
+"I'm building a fitness tracking app. Create a dark theme using teal as the accent color with NativeWind."
 
 "Improve my current color palette — the surfaces feel flat and the accent doesn't pop enough."
 
@@ -86,81 +82,20 @@ Every screen must handle ALL states — not just the happy path:
 "Design the home screen for a recipe app — light theme, playful aesthetic, lots of food imagery."
 ```
 
-## What's Included
-
-| Section                   | Description                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------- |
-| Core Philosophy           | 5 principles that guide every decision                                                  |
-| Design Thinking Framework | Purpose, audience, aesthetic direction, differentiation                                 |
-| Color System (Complete)   | Theory, generation process, token architecture, dark/light rules                        |
-| Theme Creation Workflows  | 4 step-by-step workflows (scratch, improve, from colors, specific view)                 |
-| Screen Pattern Catalog    | 8+ screen types with structure, decisions, and quality marks                            |
-| Layout Decision Framework | Content → layout decision tree, spacing rules, component sizes                          |
-| Platform Constraints      | All RN hard rules (flexbox, gradients, shadows, images, touch, blur, lists, typography) |
-| Visual Aesthetics         | Reference apps by category, dark/light principles, typography, spacing, motion          |
-| State Design              | Required states, skeleton rules, empty state patterns                                   |
-| Styling (Stack Agnostic)  | Detection + patterns for StyleSheet, NativeWind, styled-components, Restyle             |
-| Industry Guidance         | Domain-specific design patterns for 6 industries                                        |
-| Iconography               | Icon guidelines, library recommendations, sizing rules                                  |
-| Quality Checklist         | 10-point verification before delivering any design                                      |
-
-## Installation
-
-### Option A: Copy into your project
-
-Place the `SKILL.md` file in your project:
-
-```
-your-project/
-└── .agents/
-    └── skills/
-        └── react-native-design/
-            └── SKILL.md
-```
-
-### Option B: Reference from VS Code settings
-
-Add the skill path to your Copilot agent configuration so it's available across projects.
-
 ## Requirements
 
-- VS Code with GitHub Copilot (agent mode / chat)
-- A React Native project (Expo or bare)
-- Any styling stack (the skill adapts automatically)
+- A React Native project, Expo or bare. The rules target React Native 0.82+; on older projects the skill checks the version before using newer style props.
+- Node.js, for the contrast script.
 
-## Anti-Patterns This Skill Prevents
+## What it doesn't do
 
-- ❌ Generic purple-gradient-on-white "AI slop" aesthetics
-- ❌ Flat color systems with no surface depth
-- ❌ Web CSS assumptions that break on mobile (`linear-gradient`, `display: grid`, `px` units)
-- ❌ Designing only the happy path (no loading/empty/error states)
-- ❌ Using Inter/Roboto as brand fonts (acceptable for body, not for identity)
-- ❌ Hardcoded colors instead of token references
-- ❌ Ignoring contrast ratios and accessibility
-- ❌ Touch targets smaller than 44pt
-- ❌ Network images without explicit dimensions
-- ❌ Mixing styling approaches within the same component
+- It doesn't replace a designer, user research, or testing on real devices. It raises the floor of what your agent produces and catches the mistakes that can be measured.
+- It stays out of data fetching, state management, navigation wiring and non-visual bugs on purpose.
 
-## Quality Standards
+## Acknowledgements
 
-Every output from this skill is verified against:
-
-- [ ] All colors reference tokens (no hardcoded hex in components)
-- [ ] Text contrast meets WCAG AA (4.5:1 body, 3:1 large)
-- [ ] Touch targets ≥ 44pt
-- [ ] Consistent spacing grid (multiples of base unit)
-- [ ] All states designed (loading, empty, error)
-- [ ] Platform-specific code where iOS/Android differ
-- [ ] No web-only CSS properties
-- [ ] Safe areas respected
-- [ ] Typography hierarchy visible (≥3 distinct levels)
-- [ ] One memorable design decision per screen
+The "commit to a direction" step is inspired by Anthropic's [frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design) skill (Apache-2.0).
 
 ## License
 
-MIT
-
-
-## Repository Note
-
-The main behavior of this skill lives in [`SKILL.md`](./SKILL.md). This README is the human-friendly explanation: what the skill is for, when to use it, and why it improves the quality of React Native UI work.
+[MIT](./LICENSE)
