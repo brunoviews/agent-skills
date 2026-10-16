@@ -4,6 +4,12 @@ An agent skill for designing React Native and Expo UI. It makes your coding agen
 
 It works with any agent that reads `SKILL.md` folders (Claude Code, Cursor, Codex, GitHub Copilot in VS Code and others) and with any styling stack: `StyleSheet`, NativeWind, styled-components or Restyle.
 
+> **Also in this repo: [`react-native-view-architecture`](./react-native-view-architecture/SKILL.md).** It structures every screen as a folder of up to four files: `index.tsx` (JSX only), `styles.ts`, `viewmodel.ts` (state, effects and decisions) and `types.ts`. It comes with a complete example view and a step-by-step guide for splitting a large component. It pairs with this skill: one decides how a screen looks, the other where each line of code lives.
+>
+> ```bash
+> npx skills add brunoviews/agent-skills --skill react-native-view-architecture
+> ```
+
 ## What it does
 
 - **Themes from scratch.** From an app idea to a complete token system: surfaces, accent, text, borders, semantic colors, type scale, spacing and fonts, with the font loading code.
